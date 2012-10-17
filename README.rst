@@ -25,7 +25,9 @@ vagrant-bash
 
 :Credits:
 
-  Originally forked from Kura's vagrant-bash-completion_.
+  -  Originally forked from Kura's vagrant-bash-completion_.
+  -  Uses dominictarr's JSON.sh_.
 
 .. _vagrant-bash-completion: https://github.com/kura/vagrant-bash-completion
+.. _JSON.sh: https://github.com/dominictarr/JSON.sh
 
