@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Thanks @fszczerba for this symlink-resolving magic.
 SOURCE="${BASH_SOURCE[0]}"
@@ -13,6 +13,22 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 source ${SCRIPT_DIR}/generic.sh
 source ${SCRIPT_DIR}/json.sh
 
+__Vagrant.ListRunningVMs() {
+
+  StateFile="$(__Vagrant.FindStatefile)"
+
+  while read line;do
+    if [[ $line =~ ^.\"active\",\".*$ ]];then
+      line=${line#*,}
+      RunningVMs+=("${line%%]*}")
+    fi
+  done <<< "$( cat ${StateFile} | __JSON.Tokenize | __JSON.Parse )"
+
+  echo "${RunningVMs[*]}"
+
+  return 0
+
+}
 __Vagrant.FindStatefile() {
 
    if [[ -f "${PWD}/.vagrant" ]];then
