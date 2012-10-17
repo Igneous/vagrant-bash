@@ -18,9 +18,19 @@ __Vagrant.ListRunningVMs() {
   StateFile="$(__Vagrant.FindStatefile)"
 
   while read line;do
-    if [[ $line =~ ^.\"active\",\".*$ ]];then
-      line=${line#*,}
-      RunningVMs+=("${line%%]*}")
+    if [[ "$line" =~ ^.\"active\",\".*$ ]];then
+      line_remainder=${line#*,}
+      vm_name="${line_remainder%%]*}"
+      vm_uuid="${line_remainder#*]}"
+      vm_uuid="${vm_uuid//[[:space:]]}"
+
+      # Check to make sure it's *actually* up in virtualbox
+      vboxmanage showvminfo ${vm_uuid//\"} | egrep "State:.*running" >/dev/null 2>&1
+      if [[ $? == 0 ]];then
+        RunningVMs+=(${vm_name})
+      else
+        DeadVMs+=(${vm_name})
+      fi
     fi
   done <<< "$( cat ${StateFile} | __JSON.Tokenize | __JSON.Parse )"
 
