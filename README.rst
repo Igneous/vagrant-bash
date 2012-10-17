@@ -23,6 +23,9 @@ vagrant-bash
 
   I wanted a way to see which Vagrant VMs were running in my bash prompt.. so when I cd'd into a vagrant project directory, I would know the current state of my project. Unfortunately, 'vagrant status' took far too long to start up mri/jruby/rbx just to spit out a list of running vms, so before I could consider trying to parse its output, it was out of the question. Since my problem revolved around bash usability, I figured I'd attempt a solution in (as close to native as possible) bash.
 
+  .. image:: http://i.imgur.com/j7k0C.png
+      :align: center
+
 :Credits:
 
   -  Originally forked from Kura's vagrant-bash-completion_.
@@ -30,4 +33,3 @@ vagrant-bash
 
 .. _vagrant-bash-completion: https://github.com/kura/vagrant-bash-completion
 .. _JSON.sh: https://github.com/dominictarr/JSON.sh
-
