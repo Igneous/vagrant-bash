@@ -26,7 +26,7 @@ __Vagrant.Complete()
             "ssh")
               vagrant_state_file=$(__Vagrant.FindStatefile) || return 1
               #Got lazy here.. I'd like to eventually replace this with a pure bash solution.
-              running_vm_list=$(grep 'active' ${vagrant_state_file} | sed -e 's/"active"://;s/,/\n/' | cut -d '"' -f 2 | tr '\n' ' ')
+              running_vm_list=$(__Vagrant.ListRunningVMs)
               COMPREPLY=($(compgen -W "${running_vm_list}" -- ${cur}))
               return 0
             ;;
