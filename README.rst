@@ -16,4 +16,5 @@ Notes
 Forked from - https://github.com/kura/vagrant-bash-completion
 
 Expands beyond the goal of bash_completion for vagrant.
+
 vagrant-bash tries to provide a framework for interacting with vagrant in bash.
