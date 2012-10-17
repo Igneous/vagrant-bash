@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-throw () {
+__JSON.Throw () {
   echo "$*" >&2
   exit 1
 }
 
-tokenize () {
+__JSON.Tokenize () {
   local ESCAPE='(\\[^u[:cntrl:]]|\\u[0-9a-fA-F]{4})'
   local CHAR='[^[:cntrl:]"\\]'
   local STRING="\"$CHAR*($ESCAPE$CHAR*)*\""
@@ -16,7 +16,7 @@ tokenize () {
     egrep -v "^$SPACE$"  # eat whitespace
 }
 
-parse_array () {
+__JSON.ParseArray () {
   local index=0
   local ary=''
   read -r token
@@ -25,14 +25,14 @@ parse_array () {
     *)
       while :
       do
-        parse_value "$1" "$index"
+        __JSON.ParseValue "$1" "$index"
         let index=$index+1
         ary="$ary""$value" 
         read -r token
         case "$token" in
           ']') break ;;
           ',') ary="$ary," ;;
-          *) throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
+          *) __JSON.Throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
         esac
         read -r token
       done
@@ -41,7 +41,7 @@ parse_array () {
   value=`printf '[%s]' "$ary"`
 }
 
-parse_object () {
+__JSON.ParseObject () {
   local key
   local obj=''
   read -r token
@@ -52,21 +52,21 @@ parse_object () {
       do
         case "$token" in
           '"'*'"') key=$token ;;
-          *) throw "EXPECTED string GOT ${token:-EOF}" ;;
+          *) __JSON.Throw "EXPECTED string GOT ${token:-EOF}" ;;
         esac
         read -r token
         case "$token" in
           ':') ;;
-          *) throw "EXPECTED : GOT ${token:-EOF}" ;;
+          *) __JSON.Throw "EXPECTED : GOT ${token:-EOF}" ;;
         esac
         read -r token
-        parse_value "$1" "$key"
+        __JSON.ParseValue "$1" "$key"
         obj="$obj$key:$value"        
         read -r token
         case "$token" in
           '}') break ;;
           ',') obj="$obj," ;;
-          *) throw "EXPECTED , or } GOT ${token:-EOF}" ;;
+          *) __JSON.Throw "EXPECTED , or } GOT ${token:-EOF}" ;;
         esac
         read -r token
       done
@@ -75,29 +75,24 @@ parse_object () {
   value=`printf '{%s}' "$obj"`
 }
 
-parse_value () {
+__JSON.ParseValue () {
   local jpath="${1:+$1,}$2"
   case "$token" in
-    '{') parse_object "$jpath" ;;
-    '[') parse_array  "$jpath" ;;
+    '{') __JSON.ParseObject "$jpath" ;;
+    '[') __JSON.ParseArray  "$jpath" ;;
     # At this point, the only valid single-character tokens are digits.
-    ''|[^0-9]) throw "EXPECTED value GOT ${token:-EOF}" ;;
+    ''|[^0-9]) __JSON.Throw "EXPECTED value GOT ${token:-EOF}" ;;
     *) value=$token ;;
   esac
   printf "[%s]\t%s\n" "$jpath" "$value"
 }
 
-parse () {
+__JSON.Parse () {
   read -r token
-  parse_value
+  __JSON.ParseValue
   read -r token
   case "$token" in
     '') ;;
-    *) throw "EXPECTED EOF GOT $token" ;;
+    *) __JSON.Throw "EXPECTED EOF GOT $token" ;;
   esac
 }
-
-if [ $0 = $BASH_SOURCE ];
-then
-  tokenize | parse
-fi
