@@ -15,14 +15,16 @@ source ${SCRIPT_DIR}/json.sh
 
 __Vagrant.ListRunningVMs() {
 
-  StateFile="$(__Vagrant.FindStatefile)"
+  local -a RunningVMs=()
+  local -a DeadVMs=()
+  local StateFile="$(__Vagrant.FindStatefile)"
 
   while read line;do
     if [[ "$line" =~ ^.\"active\",\".*$ ]];then
-      line_remainder=${line#*,}
-      vm_name="${line_remainder%%]*}"
-      vm_uuid="${line_remainder#*]}"
-      vm_uuid="${vm_uuid//[[:space:]]}"
+      local line_remainder=${line#*,}
+      local vm_name="${line_remainder%%]*}"
+      local vm_uuid="${line_remainder#*]}"
+      local vm_uuid="${vm_uuid//[[:space:]]}"
 
       # Check to make sure it's *actually* up in virtualbox
       vboxmanage showvminfo ${vm_uuid//\"} | egrep "State:.*running" >/dev/null 2>&1
@@ -48,7 +50,7 @@ __Vagrant.FindStatefile() {
 
    else
 
-      TestDirectory="${PWD}"
+      local TestDirectory="${PWD}"
 
       until [[ -f "${TestDirectory}/.vagrant" ]];do
         export TestDirectory="$(dirname ${TestDirectory})"
